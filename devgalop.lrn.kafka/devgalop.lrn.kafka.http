@@ -1,0 +1,6 @@
+@devgalop.lrn.kafka_HostAddress = http://localhost:5162
+
+GET {{devgalop.lrn.kafka_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
