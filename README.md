@@ -38,6 +38,10 @@ devgalop.lrn.kafka/
 ├── Program.cs
 ```
 
+## Configuración de ambiente
+
+Para configurar el ambiente de desarrollo, valide el archivo [SETUP.md](./SETUP.md) para obtener instrucciones detalladas sobre la instalación de Apache Kafka en una máquina virtual con Ubuntu Server.
+
 ## Referencias
 
 Si desea profundizar en la integración de .NET con Apache Kafka, se recomienda revisar la documentación oficial de Confluent.Kafka y los recursos disponibles en el sitio web de Apache Kafka. [Confluent.Kafka Documentation](https://developer.confluent.io/get-started/dotnet/) y [Apache Kafka Documentation](https://kafka.apache.org/)
