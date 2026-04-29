@@ -1,4 +1,4 @@
-namespace devgalop.lrn.kafka.Features.Shared;
+namespace devgalop.lrn.kafka.Features.Consumer.Contracts;
 
 public interface IConsumer
 {
