@@ -1,24 +1,19 @@
+using devgalop.lrn.kafka.Shared.Base;
 using devgalop.lrn.kafka.Shared.Endpoint;
 using devgalop.lrn.kafka.Shared.Mediator;
+using Microsoft.Extensions.Logging;
 
-namespace devgalop.lrn.kafka.Features.Consumer;
+namespace devgalop.lrn.kafka.Features.Consumer.Endpoints;
 
-public record ConsumeMessageRequest(int NumberOfMessages): ICommand
-{
-    public string Serialize() => System.Text.Json.JsonSerializer.Serialize(this, new System.Text.Json.JsonSerializerOptions
-    {
-        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-        WriteIndented = false
-    });
-}
+public record ConsumeMessageRequest(int NumberOfMessages) : RequestDto;
 
-public class ConsumerEndpoint : IEndpoint
+public class ConsumeEndpoint(ILogger<ConsumeEndpoint> logger) : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("/consume", async (int numberOfMessages, IMediator mediator) =>
         {
-            Console.WriteLine($"Recibe petición para consumir {numberOfMessages} mensajes");
+            logger.LogInformation("Received request to consume {Count} messages", numberOfMessages);
             if(numberOfMessages <= 0) numberOfMessages = 1;
             await mediator.SendAsync(new ConsumeMessageRequest(numberOfMessages));
             return Results.Ok($"Finaliza procesamiento de los {numberOfMessages} mensajes solicitados");

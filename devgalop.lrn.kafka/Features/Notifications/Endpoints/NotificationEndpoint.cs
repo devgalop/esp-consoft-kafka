@@ -1,42 +1,35 @@
+using devgalop.lrn.kafka.Shared.Base;
 using devgalop.lrn.kafka.Shared.Endpoint;
 using devgalop.lrn.kafka.Shared.Mediator;
+using Microsoft.Extensions.Logging;
 
-namespace devgalop.lrn.kafka.Features.Producer;
+namespace devgalop.lrn.kafka.Features.Notifications.Endpoints;
 
-public record NotificationRequest(string Title, string Author, string Content): ICommand
-{
-    public string Serialize() => System.Text.Json.JsonSerializer.Serialize(this, new System.Text.Json.JsonSerializerOptions
-    {
-        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-        WriteIndented = false
-    });
-}
+public record NotificationRequest(string Title, string Author, string Content) : RequestDto;
 
-public class ProducerEndpoint : IEndpoint
+public class NotificationEndpoint(ILogger<NotificationEndpoint> logger) : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/", async(NotificationRequest request, IMediator mediator) =>
+        app.MapPost("/", async (NotificationRequest request, IMediator mediator) =>
         {
             try
             {
-                Console.WriteLine($"Recibe petición: {request.Serialize()}");
+                logger.LogInformation("Received request: {Request}", request.Serialize());
                 await mediator.SendAsync(request);
                 return Results.Ok("Petición recibida y procesada correctamente");    
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ocurrió un error: {ex.Message}");
+                logger.LogError(ex, "Error processing request");
                 return Results.Problem($"Ocurrió un error al procesar la petición, por favor intente nuevamente. Mensaje de error: {ex.Message}", statusCode: 400);
             }
-            
         })
         .WithName("ProduceMessage")
-        .WithTags("Producer")
+        .WithTags("Notifications")
         .WithDescription("Endpoint para producir mensajes a Kafka")
         .Accepts<NotificationRequest>("application/json")
         .Produces(200)
         .Produces(400);
-
     }
 }

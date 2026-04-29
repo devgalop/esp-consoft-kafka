@@ -1,26 +1,26 @@
 using Confluent.Kafka;
-using devgalop.lrn.kafka.Features.Shared;
+using devgalop.lrn.kafka.Features.Consumer.Contracts;
 using devgalop.lrn.kafka.Shared.Options;
+using Microsoft.Extensions.Logging;
 
 namespace devgalop.lrn.kafka.Infrastructure.Kafka.Consumer;
 
-public class KafkaConsumer(
-    KafkaOptions options
-) : IConsumer
+public sealed class KafkaConsumer(
+    IConsumer<Ignore, string> consumer,
+    KafkaOptions options,
+    ILogger<KafkaConsumer> logger
+) : IConsumer, IDisposable
 {
+    private bool _disposed = false;
+
     public async Task ConsumeAsync(int numberOfMessages)
     {
-        var config = new ConsumerConfig
-        {
-            BootstrapServers = $"{options.Host}:{options.Port}",
-            GroupId = "devgalop-consumer-group",
-            AutoOffsetReset = AutoOffsetReset.Earliest,
-            EnableAutoCommit = false 
-        };
+        logger.LogInformation("Starting to consume {Count} messages from topic {Topic}", numberOfMessages, options.Topic);
+        
+        consumer.Subscribe(options.Topic);
         int messageProcessed = 0;
         bool noMessagesReceived = false;
-        using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
-        consumer.Subscribe(options.Topic);
+
         try
         {
             while (messageProcessed < numberOfMessages)
@@ -29,44 +29,58 @@ public class KafkaConsumer(
 
                 if (result == null) 
                 {
-                    Console.WriteLine("No se recibieron mensajes en el intervalo de tiempo especificado.");
+                    logger.LogWarning("No messages received within timeout period");
                     messageProcessed = numberOfMessages;
-                    Console.WriteLine("Finaliza procesamiento de los mensajes solicitados por falta de mensajes en el topic.");
+                    logger.LogInformation("Finished processing - no more messages in topic");
                     noMessagesReceived = true;
                     continue;
                 }
 
-                Console.WriteLine($"Mensaje: {result.Message.Value}");
+                logger.LogInformation("Message received: {Message}", result.Message.Value);
                 messageProcessed++;
             }
+            
             if (!noMessagesReceived)
             {
                 consumer.Commit();
-                Console.WriteLine("Mensajes procesados y offsets confirmados.");
+                logger.LogInformation("Messages processed and offsets committed");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            logger.LogError(ex, "Error during message consumption");
         }
-        finally
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
         {
             consumer.Close();
+            consumer.Dispose();
+            _disposed = true;
         }
     }
 }
 
 public static class KafkaConsumerExtensions
 {
-    /// <summary>
-    /// Agrega el servicio de KafkaConsumer al contenedor de dependencias.
-    /// </summary>
-    /// <param name="builder">El constructor de la aplicación web.</param>
-    /// <returns>El constructor de la aplicación web con el servicio de KafkaConsumer agregado.</returns>
     public static WebApplicationBuilder AddKafkaConsumer(this WebApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<IConsumer<Ignore, string>>(sp =>
+        {
+            var options = sp.GetRequiredService<KafkaOptions>();
+            var config = new ConsumerConfig
+            {
+                BootstrapServers = $"{options.Host}:{options.Port}",
+                GroupId = "devgalop-consumer-group",
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnableAutoCommit = false 
+            };
+            return new ConsumerBuilder<Ignore, string>(config).Build();
+        });
+
         builder.Services.AddSingleton<IConsumer, KafkaConsumer>();
         return builder;
     }
 }
-
