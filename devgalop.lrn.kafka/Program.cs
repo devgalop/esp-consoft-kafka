@@ -1,6 +1,7 @@
 using devgalop.lrn.kafka.Features;
 using devgalop.lrn.kafka.Infrastructure.Kafka.Consumer;
 using devgalop.lrn.kafka.Infrastructure.Kafka.Publisher;
+using devgalop.lrn.kafka.Infrastructure.Persistence.Extensions;
 using devgalop.lrn.kafka.Shared.Endpoint;
 using devgalop.lrn.kafka.Shared.Mediator;
 
@@ -11,7 +12,8 @@ builder.Configuration.AddEnvironmentVariables().AddUserSecrets<Program>();
 builder.AddMediator()
        .AddFeatureModules()
        .AddKafkaPublisher()
-       .AddKafkaConsumer();
+       .AddKafkaConsumer()
+       .AddLoggingPersistence();
 
 builder.Services.AddOpenApi();
 
@@ -25,4 +27,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+await app.UseLoggingPersistenceAsync();
 await app.RunAsync();

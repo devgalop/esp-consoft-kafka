@@ -13,6 +13,15 @@ Para este ejercicio, se instalará Apache Kafka en una máquina tipo servidor y 
 - Apache Kafka 2.13-4.2.0
 - Java 17+
 
+## Tecnologías utilizadas
+
+- .NET 10
+- Confluent.Kafka
+- Apache Kafka 2.13-4.2.0
+- Java 17+
+- Entity Framework
+- SQLLite
+
 ## Arquitectura
 
 Este proyecto se realiza en una arquitectura de monolito, con una arquitectura de capas verticales basadas en features.
