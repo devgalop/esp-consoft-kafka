@@ -20,22 +20,47 @@ Este proyecto se realiza en una arquitectura de monolito, con una arquitectura d
 ```bash
 devgalop.lrn.kafka/
 ├── Features/
-│   ├── Producer/
-│   │   ├── ProducerEndpoint.cs
-│   │   └── ProducerHandler.cs
+│   ├── Notifications/
+│   │   ├── Contracts/
+│   │   │   ├── IPublisher.cs
+│   │   │   └── IMessage.cs
+│   │   ├── Handlers/
+│   │   │   └── NotificationHandler.cs
+│   │   ├── Endpoints/
+│   │   │   └── NotificationEndpoint.cs
+│   │   ├── Models/
+│   │   │   └── NotificationMessage.cs
+│   │   ├── Exceptions/
+│   │   │   └── MessageDeliveryException.cs
+│   │   └── NotificationsFeature.cs
 │   ├── Consumer/
-│   │   ├── ConsumerEndpoint.cs
-│   │   └── ConsumerHandler.cs
-│   ├── Shared/
-│   │   ├── IPublisher.cs
-│   │   ├── IConsumer.cs
+│   │   ├── Contracts/
+│   │   │   └── IConsumer.cs
+│   │   ├── Handlers/
+│   │   │   └── ConsumeHandler.cs
+│   │   ├── Endpoints/
+│   │   │   └── ConsumeEndpoint.cs
+│   │   └── ConsumerFeature.cs
+│   ├── IFeatureModule.cs
+│   └── FeatureModuleExtensions.cs
 ├── Infrastructure/
-│   ├── Kafka/
-│   │   ├── Publisher/
-│   │   │   ├── KafkaPublisher.cs
-│   │   ├── Consumer/
-│   │   │   ├── KafkaConsumer.cs
-├── Program.cs
+│   └── Kafka/
+│       ├── Publisher/
+│       │   └── KafkaPublisher.cs
+│       └── Consumer/
+│           └── KafkaConsumer.cs
+├── Shared/
+│   ├── Base/
+│   │   └── RequestDto.cs
+│   ├── Endpoint/
+│   │   └── IEndpoint.cs
+│   ├── Exceptions/
+│   │   └── Exceptions.cs
+│   ├── Mediator/
+│   │   └── Mediator.cs
+│   └── Options/
+│       └── KafkaOptions.cs
+└── Program.cs
 ```
 
 ## Configuración de ambiente
