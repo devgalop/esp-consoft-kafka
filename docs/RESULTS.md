@@ -1,8 +1,10 @@
-# Resultados de integración .NET con Apache Kafka
+# Resultados de integración 
+
+## .NET con Apache Kafka
 
 En esta sección se presentan los resultados obtenidos tras la integración de una aplicación .NET con Apache Kafka. Se han realizado pruebas para validar el correcto funcionamiento del productor y consumidor de mensajes, así como la comunicación efectiva entre ambos componentes a través de Kafka.
 
-## Publicación de mensajes
+### Publicación de mensajes
 
 Se implementó un endpoint para enviar mensajes a Kafka con el siguiente formato:
 
@@ -22,7 +24,7 @@ Al enviar un mensaje a través del endpoint del productor, se pudo verificar que
 - **Verificación de mensaje en topic de Kafka**: Se utilizó la herramienta de línea de comandos de Kafka para consumir los mensajes publicados y confirmar que el contenido era correcto.
 ![verificacion_mensaje_kafka](./resources/verificacion_mensaje_kafka.png)
 
-## Consumo de mensajes
+### Consumo de mensajes
 
 Se implementó un endpoint para consumir una cantidad específica de mensajes desde Kafka. Al invocar este endpoint, se pudo verificar que los mensajes fueron correctamente consumidos y procesados por la aplicación .NET. Se validó que el consumidor estaba funcionando correctamente al recibir los mensajes publicados por el productor y procesarlos según la lógica implementada.
 
@@ -34,3 +36,21 @@ Se implementó un endpoint para consumir una cantidad específica de mensajes de
 
 - **Verificación de mensaje cuando no existen mensajes para consumir**: Se validó que el consumidor manejaba correctamente la situación cuando no había mensajes disponibles para consumir, mostrando un mensaje adecuado al usuario.
 ![verificacion_mensaje_no_disponible](./resources/mensaje_topic_sin_mensajes.png)  
+
+---
+
+## Logs en base de datos
+
+En esta sección se presentan los resultados obtenidos tras la integración de un sistema de logging que almacena los logs en una base de datos. Se han realizado pruebas para validar que los logs se están registrando correctamente en la base de datos y que contienen la información esperada.
+
+La estructura de la tabla de logs en la base de datos es la siguiente:
+
+| Id | Timestamp | Source | Message |
+| ---- | ----------- | -------- | --------- |
+| 1 | 1777591070 | KafkaConsumer | Message received: Sample message content |
+
+![estructura_tabla_logs](./resources/database_structure.png)
+
+- **Registro de logs en base de datos**: Se validó que los logs se estaban registrando correctamente en la base de datos al realizar acciones en la aplicación que generaban logs. Se verificó que cada log contenía un timestamp, la fuente del log y el mensaje correspondiente.
+
+![registro_logs_db](./resources/database_content.png)
