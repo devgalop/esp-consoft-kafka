@@ -22,8 +22,9 @@ public sealed class KafkaConsumer(
         using var scope = serviceScopeFactory.CreateScope();
         var logWriter = scope.ServiceProvider.GetRequiredService<ILogWriter>();
 
+        List<Task> logTasks = new List<Task>();
+
         logger.LogInformation("Starting to consume {Count} messages from topic {Topic}", numberOfMessages, options.Topic);
-        await logWriter.WriteAsync(LogSource, $"Starting to consume {numberOfMessages} messages from topic {options.Topic}");
         
         consumer.Subscribe(options.Topic);
         int messageProcessed = 0;
@@ -33,21 +34,20 @@ public sealed class KafkaConsumer(
         {
             while (messageProcessed < numberOfMessages)
             {
-                var result = consumer.Consume(TimeSpan.FromSeconds(5));
+                var result = consumer.Consume(TimeSpan.FromSeconds(3));
 
                 if (result == null)  
                 {
                     logger.LogWarning("No messages received within timeout period");
-                    await logWriter.WriteAsync(LogSource, "No messages received within timeout period");
                     messageProcessed = numberOfMessages;
                     logger.LogInformation("Finished processing - no more messages in topic");
-                    await logWriter.WriteAsync(LogSource, "Finished processing - no more messages in topic");
+                    logTasks.Add(logWriter.WriteAsync(LogSource, "Finished processing - no more messages in topic"));
                     noMessagesReceived = true;
                     continue;
                 }
 
                 logger.LogInformation("Message received: {Message}", result.Message.Value);
-                await logWriter.WriteAsync(LogSource, $"Message received: {result.Message.Value}");
+                logTasks.Add(logWriter.WriteAsync(LogSource, $"Message received: {result.Message.Value}"));
                 messageProcessed++;
             }
             
@@ -55,13 +55,18 @@ public sealed class KafkaConsumer(
             {
                 consumer.Commit();
                 logger.LogInformation("Messages processed and offsets committed");
-                await logWriter.WriteAsync(LogSource, "Messages processed and offsets committed");
             }
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error during message consumption");
-            await logWriter.WriteAsync(LogSource, $"Error during message consumption: {ex.Message}");
+            logTasks.Add(logWriter.WriteAsync(LogSource, $"Error during message consumption: {ex.Message}"));
+        }
+        finally
+        {
+            await Task.WhenAll(logTasks);
+            logger.LogInformation("Finished consuming messages");
+            logTasks.Clear();
         }
     }
 
