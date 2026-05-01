@@ -54,3 +54,11 @@ La estructura de la tabla de logs en la base de datos es la siguiente:
 - **Registro de logs en base de datos**: Se validó que los logs se estaban registrando correctamente en la base de datos al realizar acciones en la aplicación que generaban logs. Se verificó que cada log contenía un timestamp, la fuente del log y el mensaje correspondiente.
 
 ![registro_logs_db](./resources/database_content.png)
+
+---
+
+## Integración SonarQube
+
+En esta sección se presentan los resultados obtenidos tras la integración de SonarQube para el análisis de calidad del código. Se han realizado pruebas para validar que SonarQube está analizando correctamente el código y proporcionando métricas de calidad, así como identificando posibles problemas o vulnerabilidades.
+
+![sonarqube_integration](./resources/sonar_scanner.png)
